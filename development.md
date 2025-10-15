@@ -42,6 +42,8 @@ For the backend and frontend, they use the same port that would be used by their
 
 This way, you could turn off a Docker Compose service and start its local development service, and everything would keep working, because it all uses the same ports.
 
+If you need to change the frontend port, set the `PORT_FRONTEND` environment variable before running `docker compose`. The override file now injects the matching values for `FRONTEND_HOST` and `BACKEND_CORS_ORIGINS`, so you no longer have to edit those settings manually when adjusting the port.
+
 For example, you can stop that `frontend` service in the Docker Compose, in another terminal, run:
 
 ```bash

@@ -58,6 +58,8 @@ services:
       - .env
     environment:
       - DOMAIN=${DOMAIN}
+      # Local development overrides FRONTEND_HOST/BACKEND_CORS_ORIGINS to follow PORT_FRONTEND.
+      # In staging/production set these explicitly to the public frontend URL(s).
       - FRONTEND_HOST=${FRONTEND_HOST?Variable not set}
       - ENVIRONMENT=${ENVIRONMENT}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
@@ -91,6 +93,8 @@ services:
       - .env
     environment:
       - DOMAIN=${DOMAIN}
+      # Local development overrides FRONTEND_HOST/BACKEND_CORS_ORIGINS to follow PORT_FRONTEND.
+      # In staging/production set these explicitly to the public frontend URL(s).
       - FRONTEND_HOST=${FRONTEND_HOST?Variable not set}
       - ENVIRONMENT=${ENVIRONMENT}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
