@@ -6,6 +6,10 @@ import 'dotenv/config'
  * https://github.com/motdotla/dotenv
  */
 
+const defaultFrontendPort = process.env.PORT_FRONTEND ?? '5173';
+const frontendHost =
+  process.env.FRONTEND_HOST ?? `http://localhost:${defaultFrontendPort}`;
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -24,7 +28,8 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:5173',
+    /* Set from .env file for consistency with backend */
+    baseURL: frontendHost,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -85,7 +90,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5173',
+    url: frontendHost,
     reuseExistingServer: !process.env.CI,
   },
 });

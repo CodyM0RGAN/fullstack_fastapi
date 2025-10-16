@@ -3,6 +3,17 @@ import { findLastEmail } from "./utils/mailcatcher"
 import { randomEmail, randomPassword } from "./utils/random"
 import { logInUser, signUpNewUser } from "./utils/user"
 
+const defaultFrontendPort = process.env.PORT_FRONTEND ?? "5173"
+const frontendHost =
+  (process.env.FRONTEND_HOST ?? `http://localhost:${defaultFrontendPort}`).replace(
+    /\/$/,
+    "",
+  )
+const mailcatcherUrl = (process.env.MAILCATCHER_URL ?? "http://localhost:1080").replace(
+  /\/$/,
+  "",
+)
+
 test.use({ storageState: { cookies: [], origins: [] } })
 
 test("Password Recovery title is visible", async ({ page }) => {
@@ -51,7 +62,7 @@ test("User can reset password successfully using the link", async ({
   })
 
   await page.goto(
-    `${process.env.MAILCATCHER_HOST}/messages/${emailData.id}.html`,
+    `${mailcatcherUrl}/messages/${emailData.id}.html`,
   )
 
   const selector = 'a[href*="/reset-password?token="]'
@@ -59,7 +70,7 @@ test("User can reset password successfully using the link", async ({
   let url = await page.getAttribute(selector, "href")
 
   // TODO: update var instead of doing a replace
-  url = url!.replace("http://localhost/", "http://localhost:5173/")
+  url = url!.replace("http://localhost", frontendHost)
 
   // Set the new password and confirm it
   await page.goto(url)
@@ -106,12 +117,12 @@ test("Weak new password validation", async ({ page, request }) => {
   })
 
   await page.goto(
-    `${process.env.MAILCATCHER_HOST}/messages/${emailData.id}.html`,
+    `${mailcatcherUrl}/messages/${emailData.id}.html`,
   )
 
   const selector = 'a[href*="/reset-password?token="]'
   let url = await page.getAttribute(selector, "href")
-  url = url!.replace("http://localhost/", "http://localhost:5173/")
+  url = url!.replace("http://localhost", frontendHost)
 
   // Set a weak new password
   await page.goto(url)

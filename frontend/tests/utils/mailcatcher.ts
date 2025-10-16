@@ -6,6 +6,11 @@ type Email = {
   subject: string
 }
 
+const mailcatcherUrl = (process.env.MAILCATCHER_URL ?? "http://localhost:1080").replace(
+  /\/$/,
+  "",
+)
+
 async function findEmail({
   request,
   filter,
@@ -13,7 +18,7 @@ async function findEmail({
   request: APIRequestContext
   filter?: (email: Email) => boolean
 }) {
-  const response = await request.get(`${process.env.MAILCATCHER_HOST}/messages`)
+  const response = await request.get(`${mailcatcherUrl}/messages`)
 
   let emails = await response.json()
 

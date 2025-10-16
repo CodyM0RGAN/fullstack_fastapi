@@ -1,3 +1,4 @@
+import os
 import secrets
 import warnings
 from typing import Annotated, Any, Literal
@@ -6,6 +7,7 @@ from pydantic import (
     AnyUrl,
     BeforeValidator,
     EmailStr,
+    Field,
     HttpUrl,
     PostgresDsn,
     computed_field,
@@ -15,11 +17,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
 
 
+def _expand_env(value: str) -> str:
+    return os.path.expandvars(value)
+
+
 def parse_cors(v: Any) -> list[str] | str:
     if isinstance(v, str) and not v.startswith("["):
-        return [i.strip() for i in v.split(",") if i.strip()]
-    elif isinstance(v, list | str):
-        return v
+        return [_expand_env(i.strip()) for i in v.split(",") if i.strip()]
+    elif isinstance(v, list):
+        return [_expand_env(str(item)) for item in v]
+    elif isinstance(v, str):
+        return _expand_env(v)
     raise ValueError(v)
 
 
@@ -34,7 +42,13 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    FRONTEND_HOST: str = "http://localhost:5173"
+    PORT_FRONTEND: int = Field(default=5173)
+    FRONTEND_CONTAINER_PORT: int = Field(default=80)
+    FRONTEND_HOST: AnyUrl = Field(default="http://localhost:5173")
+    PORT_BACKEND: int = Field(default=8000)
+    BACKEND_CONTAINER_PORT: int = Field(default=8000)
+    BACKEND_URL: AnyUrl = Field(default="http://localhost:8000")
+    BACKEND_INTERNAL_URL: AnyUrl = Field(default="http://backend:8000")
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
     BACKEND_CORS_ORIGINS: Annotated[
@@ -50,11 +64,15 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
-    POSTGRES_SERVER: str
-    POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str = ""
-    POSTGRES_DB: str = ""
+    POSTGRES_SERVER: str = Field(default="localhost")
+    POSTGRES_PORT: int = Field(default=5432)
+    POSTGRES_USER: str = Field(default="postgres")
+    POSTGRES_PASSWORD: str = Field(default="changethis")
+    POSTGRES_DB: str = Field(default="app")
+    MAILCATCHER_HTTP_PORT: int = Field(default=1080)
+    MAILCATCHER_SMTP_PORT: int = Field(default=1025)
+    MAILCATCHER_URL: AnyUrl = Field(default="http://localhost:1080")
+    MAILCATCHER_INTERNAL_URL: AnyUrl = Field(default="http://mailcatcher:1080")
 
     @computed_field  # type: ignore[prop-decorator]
     @property
