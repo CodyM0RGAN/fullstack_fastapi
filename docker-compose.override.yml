@@ -67,6 +67,8 @@ services:
       - run
       - --reload
       - "app/main.py"
+      - --port
+      - "${BACKEND_CONTAINER_PORT}"
     develop:
       watch:
         - path: ./backend
